@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ResumeMatch AI - Advanced ATS Resume Analyzer</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    html, body {
+      background: linear-gradient(135deg, #fffdf9 0%, #fff9f0 30%, #f6efe3 100%) !important;
+      color: #2b2418 !important;
+    }
+
+    .premium-theme,
+    .premium-theme body {
+      background: linear-gradient(135deg, #fffdf9 0%, #fff9f0 30%, #f6efe3 100%) !important;
+      color: #2b2418 !important;
+    }
+
+    .premium-header,
+    header {
+      background: rgba(255, 255, 255, 0.7) !important;
+      border-bottom: 1px solid rgba(201, 162, 39, 0.2) !important;
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.78) !important;
+      border: 1px solid rgba(201, 162, 39, 0.25) !important;
+      box-shadow: 0 12px 30px rgba(153, 125, 32, 0.12) !important;
+    }
+
+    .glass-card:hover {
+      background: rgba(255, 255, 255, 0.92) !important;
+      border-color: rgba(201, 162, 39, 0.38) !important;
+    }
+
+    #dropZone,
+    select,
+    textarea,
+    input {
+      background: rgba(255, 255, 255, 0.75) !important;
+      color: #2b2418 !important;
+      border-color: rgba(201, 162, 39, 0.25) !important;
+    }
+
+    .text-slate-100,
+    .text-slate-200,
+    .text-slate-300,
+    .text-slate-400,
+    .text-slate-500,
+    .text-slate-600,
+    .text-slate-700,
+    .text-slate-800,
+    .text-slate-900,
+    .text-slate-950,
+    .text-white {
+      color: #2b2418 !important;
+    }
+  </style>
+  
+  <!-- Tailwind Configuration -->
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            slate: {
+              850: '#151c2c',
+              900: '#0b0f19',
+              950: '#060810',
+            },
+            // Theme: "indigo" slot is remapped to metallic gold, "purple" slot to silver
+            indigo: {
+              50:  '#fbf7e6',
+              100: '#f5ecc2',
+              200: '#efe0a0',
+              300: '#e8d17a',
+              400: '#dcbd4f',
+              500: '#c9a227',
+              600: '#a8841c',
+              700: '#86691a',
+              800: '#5e4a14',
+              900: '#42340f',
+              950: '#271f09',
+            },
+            purple: {
+              50:  '#f8f9fa',
+              100: '#eef0f3',
+              200: '#dfe2e7',
+              300: '#c9cdd4',
+              400: '#b0b5be',
+              500: '#9aa0ab',
+              600: '#7f8591',
+              700: '#656b77',
+              800: '#4a4f59',
+              900: '#33373f',
+              950: '#1d2025',
+            },
+            brand: {
+              accent: '#c9a227', // Gold
+              accentDark: '#a8841c',
+              emerald: '#10b981', // Green
+              amber: '#f59e0b', // Yellow
+              orange: '#f97316', // Orange
+              rose: '#ef4444', // Red
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Outfit', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="premium-theme font-sans min-h-screen relative overflow-x-hidden selection:bg-indigo-500/30 selection:text-indigo-200">
+
+  <!-- Background Blur Spheres -->
+  <div class="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-indigo-900/20 blur-[120px] pointer-events-none"></div>
+  <div class="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] rounded-full bg-emerald-900/10 blur-[150px] pointer-events-none"></div>
+  <div class="absolute top-[40%] right-[20%] w-[400px] h-[400px] rounded-full bg-purple-900/15 blur-[120px] pointer-events-none"></div>
+
+  <!-- Header -->
+  <header class="premium-header border-b border-slate-800/60 backdrop-blur-md sticky top-0 z-40 px-6 py-4">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+          <i data-lucide="scan-line" class="w-5 h-5 text-slate-950 animate-pulse"></i>
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold font-display tracking-tight bg-gradient-to-r from-slate-100 via-slate-300 to-indigo-400 bg-clip-text text-transparent">ResumeMatch AI</h1>
+          <p class="text-xs text-slate-400 font-medium tracking-wide uppercase">Evidence-Based ATS Analyzer</p>
+        </div>
+      </div>
+      
+      <div class="flex items-center gap-3">
+        <span class="px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center gap-1.5 shadow-sm">
+          <span class="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-ping"></span>
+          Recruiter Engine Active
+        </span>
+        <button id="btnExportPdf" class="px-4 py-1.5 rounded-lg text-sm font-medium border border-slate-700 bg-slate-900/60 hover:bg-slate-800 text-slate-300 hover:text-white transition flex items-center gap-2">
+          <i data-lucide="download" class="w-4 h-4"></i> Export PDF Report
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
+    
+    <!-- LEFT PANEL: Upload & Inputs (4 Cols) -->
+    <section class="lg:col-span-4 flex flex-col gap-6">
+      
+      <!-- Sample Quick Select -->
+      <div class="glass-card p-5 border border-slate-800/60 rounded-2xl flex flex-col gap-3">
+        <label class="text-sm font-semibold text-slate-300 flex items-center gap-2">
+          <i data-lucide="layers" class="w-4 h-4 text-indigo-400"></i> Load Demo Job & Resume
+        </label>
+        <div class="relative">
+          <select id="sampleSelector" class="w-full bg-slate-900 border border-slate-700/60 hover:border-slate-600 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none transition cursor-pointer">
+            <option value="">-- Upload own files or select role --</option>
+            <option value="software_engineer">Software Engineer (Full Stack)</option>
+            <option value="data_scientist">Data Scientist / ML Engineer</option>
+            <option value="product_manager">Technical Product Manager</option>
+          </select>
+          <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none text-slate-400">
+            <i data-lucide="chevron-down" class="w-4 h-4"></i>
+          </div>
+        </div>
+        <p class="text-xs text-slate-400">Instantly explore a comprehensive 22-section recruiter assessment.</p>
+      </div>
+
+      <!-- File Upload Zone -->
+      <div class="glass-card p-5 border border-slate-800/60 rounded-2xl flex flex-col gap-4">
+        <h3 class="text-sm font-semibold text-slate-300 flex items-center gap-2">
+          <i data-lucide="file-text" class="w-4 h-4 text-indigo-400"></i> Upload Resume
+        </h3>
+        <div id="dropZone" class="border-2 border-dashed border-slate-700/80 hover:border-indigo-500/50 bg-slate-900/20 hover:bg-indigo-950/5 rounded-2xl p-6 text-center transition cursor-pointer group flex flex-col items-center justify-center min-h-[140px]">
+          <input type="file" id="fileInput" class="hidden" accept=".pdf,.docx,.doc,.txt">
+          <div class="w-12 h-12 rounded-xl bg-slate-900 flex items-center justify-center border border-slate-800 shadow-inner group-hover:scale-110 transition duration-300">
+            <i data-lucide="upload-cloud" class="w-6 h-6 text-slate-400 group-hover:text-indigo-400 transition"></i>
+          </div>
+          <p class="text-sm font-medium mt-3 text-slate-300">Drag & Drop Resume here</p>
+          <p class="text-xs text-slate-500 mt-1">Supports PDF, DOCX, DOC, TXT (Max 5MB)</p>
+          <div id="uploadStatus" class="hidden mt-3 text-xs px-2.5 py-1 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20"></div>
+        </div>
+      </div>
+
+      <!-- Job Description Input -->
+      <div class="glass-card p-5 border border-slate-800/60 rounded-2xl flex flex-col gap-4 flex-grow">
+        <div class="flex items-center justify-between">
+          <h3 class="text-sm font-semibold text-slate-300 flex items-center gap-2">
+            <i data-lucide="briefcase" class="w-4 h-4 text-indigo-400"></i> Target Job Description
+          </h3>
+          <span id="jdCharCount" class="text-[10px] text-slate-500 font-mono">0 chars</span>
+        </div>
+        <textarea id="jdInput" placeholder="Paste the complete job description text here... (e.g. required skills, years of experience, responsibilities)" class="w-full flex-grow min-h-[220px] bg-slate-900/80 border border-slate-700/60 hover:border-slate-600 focus:border-indigo-500 rounded-xl p-4 text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 transition resize-none"></textarea>
+      </div>
+
+      <!-- Analyze Button -->
+      <button id="btnAnalyze" class="w-full py-4 rounded-xl font-semibold bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-slate-950 shadow-xl shadow-indigo-600/20 hover:shadow-indigo-600/30 hover:scale-[1.01] active:scale-[0.99] transition duration-200 flex items-center justify-center gap-2 border border-indigo-400/20 text-lg">
+        <i data-lucide="sparkles" class="w-5 h-5 text-slate-900"></i>
+        <span>Analyze & Compare</span>
+      </button>
+
+      <!-- Privacy Shield -->
+      <div class="flex items-center gap-3 px-3 text-[11px] text-slate-500">
+        <i data-lucide="shield-check" class="w-4 h-4 text-slate-400 shrink-0"></i>
+        <span><strong>100% Client-Side Privacy:</strong> Resumes are processed locally in your browser. No files or contents are uploaded to any server.</span>
+      </div>
+
+    </section>
+
+    <!-- RIGHT PANEL: Dashboard (8 Cols) -->
+    <section class="lg:col-span-8">
+      
+      <!-- Welcome Splash / Empty State -->
+      <div id="welcomeSplash" class="glass-card border border-slate-800/60 rounded-2xl p-10 text-center min-h-[500px] flex flex-col items-center justify-center gap-6">
+        <div class="w-20 h-20 rounded-2xl bg-indigo-500/5 border border-indigo-500/10 flex items-center justify-center text-indigo-400 shadow-inner">
+          <i data-lucide="brain-circuit" class="w-10 h-10 animate-pulse"></i>
+        </div>
+        <div>
+          <h2 class="text-2xl font-bold font-display text-white">Advanced Recruiter Comparison Dashboard</h2>
+          <p class="text-slate-400 max-w-lg mt-2 mx-auto">Upload a resume and paste a job description on the left, or pick one of our preset templates to view matching percentages, skills heatmaps, STAR bullet improvements, and recruiter verdicts.</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-2xl mt-4">
+          <div class="p-4 bg-slate-900/40 border border-slate-800 rounded-xl text-left">
+            <h4 class="text-sm font-semibold text-slate-200 flex items-center gap-1.5"><i data-lucide="coins" class="w-4 h-4 text-indigo-400"></i> Match Scoring</h4>
+            <p class="text-xs text-slate-400 mt-1">Weighted assessment across skills (30%), experience (25%), projects (15%), and education (10%).</p>
+          </div>
+          <div class="p-4 bg-slate-900/40 border border-slate-800 rounded-xl text-left">
+            <h4 class="text-sm font-semibold text-slate-200 flex items-center gap-1.5"><i data-lucide="combine" class="w-4 h-4 text-emerald-400"></i> Semantic Synonyms</h4>
+            <p class="text-xs text-slate-400 mt-1">Understands equivalent technologies (e.g. PyTorch ≈ Deep Learning) without keyword stuffing.</p>
+          </div>
+          <div class="p-4 bg-slate-900/40 border border-slate-800 rounded-xl text-left">
+            <h4 class="text-sm font-semibold text-slate-200 flex items-center gap-1.5"><i data-lucide="trending-up" class="w-4 h-4 text-amber-400"></i> STAR Rewriter</h4>
+            <p class="text-xs text-slate-400 mt-1">Rewrites weak experience points into quantified high-impact bullets instantly.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading Parser Animation Splash -->
+      <div id="loadingSplash" class="hidden glass-card border border-slate-800/60 rounded-2xl p-10 min-h-[500px] flex flex-col items-center justify-center gap-8">
+        <div class="relative w-28 h-28 flex items-center justify-center">
+          <div class="absolute inset-0 rounded-full border-4 border-indigo-500/10 border-t-indigo-500 animate-spin"></div>
+          <div class="w-16 h-16 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-400">
+            <i data-lucide="scan" class="w-8 h-8 animate-pulse"></i>
+          </div>
+        </div>
+        <div class="text-center">
+          <h3 class="text-xl font-bold font-display text-white">Analyzing Resume Compatibility</h3>
+          <p class="text-xs text-slate-500 mt-1 uppercase tracking-widest font-semibold">Running Local Parsing and Match Algorithms</p>
+        </div>
+        <div class="w-full max-w-md bg-slate-900 rounded-xl p-4 border border-slate-800 flex flex-col gap-3.5">
+          <div id="loadStep1" class="flex items-center justify-between text-xs text-slate-500 transition-all duration-300">
+            <span class="flex items-center gap-2"><i class="w-1.5 h-1.5 rounded-full bg-slate-600 step-dot"></i> <span>Extracting document characters...</span></span>
+            <span class="font-semibold step-status">Waiting</span>
+          </div>
+          <div id="loadStep2" class="flex items-center justify-between text-xs text-slate-500 transition-all duration-300">
+            <span class="flex items-center gap-2"><i class="w-1.5 h-1.5 rounded-full bg-slate-600 step-dot"></i> <span>Identifying segments & contact info...</span></span>
+            <span class="font-semibold step-status">Waiting</span>
+          </div>
+          <div id="loadStep3" class="flex items-center justify-between text-xs text-slate-500 transition-all duration-300">
+            <span class="flex items-center gap-2"><i class="w-1.5 h-1.5 rounded-full bg-slate-600 step-dot"></i> <span>Mapping semantic synonym indices...</span></span>
+            <span class="font-semibold step-status">Waiting</span>
+          </div>
+          <div id="loadStep4" class="flex items-center justify-between text-xs text-slate-500 transition-all duration-300">
+            <span class="flex items-center gap-2"><i class="w-1.5 h-1.5 rounded-full bg-slate-600 step-dot"></i> <span>Calculating ATS scores & roadmaps...</span></span>
+            <span class="font-semibold step-status">Waiting</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- RESULTS CONTAINER (Hidden until analyzed) -->
+      <div id="resultsDashboard" class="hidden flex flex-col gap-6">
+        
+        <!-- PROFILE SUMMARY & HIGHLIGHTS HEADER (User Requirement) -->
+        <div class="glass-card border border-slate-800/60 rounded-2xl p-6 relative overflow-hidden">
+          <div class="absolute right-0 top-0 w-32 h-32 bg-indigo-500/5 rounded-full blur-2xl pointer-events-none"></div>
+          
+          <div class="flex flex-col md:flex-row md:items-start justify-between gap-4">
+            <div>
+              <div class="flex items-center gap-3 flex-wrap">
+                <h2 id="candName" class="text-3xl font-extrabold font-display text-white tracking-tight">Candidate Name</h2>
+                <button id="btnEditText" class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 text-[10px] font-semibold text-slate-300 hover:text-white transition flex items-center gap-1">
+                  <i data-lucide="edit-3" class="w-3.5 h-3.5"></i> Edit Extracted Text
+                </button>
+              </div>
+              <p id="candContact" class="text-sm text-slate-400 mt-1">Contact Information</p>
+              
+              <!-- Social Links -->
+              <div class="flex items-center gap-4 mt-3 text-xs text-slate-400">
+                <span id="linkGithub" class="flex items-center gap-1.5 hover:text-indigo-400 transition cursor-pointer">
+                  <i data-lucide="github" class="w-4 h-4"></i> <span>github.com</span>
+                </span>
+                <span id="linkLinkedin" class="flex items-center gap-1.5 hover:text-indigo-400 transition cursor-pointer">
+                  <i data-lucide="linkedin" class="w-4 h-4"></i> <span>linkedin.com</span>
+                </span>
+                <span id="linkPortfolio" class="flex items-center gap-1.5 hover:text-indigo-400 transition cursor-pointer">
+                  <i data-lucide="globe" class="w-4 h-4"></i> <span>portfolio</span>
+                </span>
+              </div>
+            </div>
+            
+            <!-- Quick Resume Highlights Summary (User Request) -->
+            <div class="w-full md:max-w-xs bg-slate-900/60 border border-slate-800/80 rounded-xl p-4 flex flex-col gap-2">
+              <h4 class="text-xs font-bold text-indigo-400 uppercase tracking-widest flex items-center gap-1.5">
+                <i data-lucide="receipt-text" class="w-3.5 h-3.5"></i> Resume Highlights
+              </h4>
+              <ul id="resumeHighlightsList" class="text-xs text-slate-300 flex flex-col gap-1.5 list-disc pl-4 leading-relaxed">
+                <!-- Appended programmatically -->
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- DASHBOARD NAVIGATION TABS -->
+        <nav class="flex border-b border-slate-800/60 gap-1 bg-slate-900/40 p-1.5 rounded-xl border border-slate-800/60">
+          <button data-tab="tab-overview" class="tab-btn active flex-1 py-2.5 px-4 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center justify-center gap-2">
+            <i data-lucide="bar-chart-3" class="w-4 h-4"></i> Overview
+          </button>
+          <button data-tab="tab-skills" class="tab-btn flex-1 py-2.5 px-4 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center justify-center gap-2">
+            <i data-lucide="cpu" class="w-4 h-4"></i> Skills Heatmap
+          </button>
+          <button data-tab="tab-experience" class="tab-btn flex-1 py-2.5 px-4 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center justify-center gap-2">
+            <i data-lucide="history" class="w-4 h-4"></i> Work & Projects
+          </button>
+          <button data-tab="tab-optimization" class="tab-btn flex-1 py-2.5 px-4 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center justify-center gap-2">
+            <i data-lucide="wrench" class="w-4 h-4"></i> ATS Optimization
+          </button>
+        </nav>
+
+        <!-- TAB CONTENT PANELS -->
+        <div id="tabContentContainer">
+          
+          <!-- TAB 1: MATCH OVERVIEW -->
+          <div id="tab-overview" class="tab-panel flex flex-col gap-6">
+            
+            <!-- Overall Score & Verdict (Section A) -->
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+              
+              <!-- Circular Score Gauge Card -->
+              <div class="md:col-span-5 glass-card border border-slate-800/60 rounded-2xl p-6 flex flex-col items-center justify-center text-center relative overflow-hidden">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Overall ATS Match Score</h3>
+                
+                <div class="relative w-40 h-40 flex items-center justify-center">
+                  <!-- Circular Progress SVG -->
+                  <svg class="w-full h-full transform -rotate-90">
+                    <circle cx="80" cy="80" r="70" stroke="currentColor" class="text-slate-800" stroke-width="8" fill="transparent"/>
+                    <circle id="scoreCircle" cx="80" cy="80" r="70" stroke="currentColor" class="text-indigo-500" stroke-width="8" fill="transparent"
+                      stroke-dasharray="440" stroke-dashoffset="440" stroke-linecap="round" class="transition-all duration-1000"/>
+                  </svg>
+                  <div class="absolute flex flex-col items-center justify-center">
+                    <span id="scoreText" class="text-5xl font-black font-display text-white">0</span>
+                    <span class="text-xs text-slate-500 font-bold uppercase mt-0.5">/ 100</span>
+                  </div>
+                </div>
+
+                <div id="verdictBadge" class="mt-4 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider border">
+                  Verdict
+                </div>
+              </div>
+
+              <!-- Recruiter Verdict Text (Section A & V) -->
+              <div class="md:col-span-7 glass-card border border-slate-800/60 rounded-2xl p-6 flex flex-col justify-between">
+                <div>
+                  <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <i data-lucide="clipboard-check" class="w-4 h-4 text-indigo-400"></i> Recruiter Verdict
+                  </h3>
+                  <p id="verdictDescription" class="text-sm text-slate-300 leading-relaxed mt-3">
+                    Detailed verdict statement explaining the comparison logic, matching strengths, and candidate recommendation.
+                  </p>
+                </div>
+                
+                <!-- Risk Assessment & Interview odds -->
+                <div class="grid grid-cols-2 gap-4 mt-6 pt-4 border-t border-slate-800/60">
+                  <div>
+                    <h4 class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Risk Assessment (Sec O)</h4>
+                    <span id="riskLevel" class="text-sm font-semibold inline-flex items-center gap-1.5 mt-1">
+                      <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i> Level
+                    </span>
+                  </div>
+                  <div>
+                    <h4 class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Recruiter Confidence</h4>
+                    <span id="recruiterConfidence" class="text-sm font-semibold inline-flex items-center gap-1.5 mt-1 text-slate-300">
+                      <i data-lucide="shield" class="w-3.5 h-3.5 text-indigo-400"></i> Confidence
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Component Scores Progress Bars (Section B) -->
+            <div class="glass-card border border-slate-800/60 rounded-2xl p-6">
+              <h3 class="text-sm font-bold text-slate-200 mb-6 flex items-center gap-2">
+                <i data-lucide="sliders-horizontal" class="w-4 h-4 text-indigo-400"></i> Weighted Component Analysis
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5">
+                <!-- Dynamic progress bars go here -->
+                <div class="flex flex-col gap-2">
+                  <div class="flex justify-between text-xs font-medium">
+                    <span class="text-slate-300">Skills Match (30%)</span>
+                    <span id="scoreValSkills" class="font-bold text-white">0%</span>
+                  </div>
+                  <div class="w-full bg-slate-900 rounded-full h-2">
+                    <div id="barSkills" class="bg-indigo-500 h-2 rounded-full transition-all duration-1000" style="width: 0%"></div>
+                  </div>
+                </div>
+                <div class="flex flex-col gap-2">
+                  <div class="flex justify-between text-xs font-medium">
+                    <span class="text-slate-300">Experience (25%)</span>
+                    <span id="scoreValExperience" class="font-bold text-white">0%</span>
+                  </div>
+                  <div class="w-full bg-slate-900 rounded-full h-2">
+                    <div id="barExperience" class="bg-indigo-500 h-2 rounded-full transition-all duration-1000" style="width: 0%"></div>
+                  </div>
+                </div>
+                <div class="flex flex-col gap-2">
+                  <div class="flex justify-between text-xs font-medium">
+                    <span class="text-slate-300">Projects (15%)</span>
+                    <span id="scoreValProjects" class="font-bold text-white">0%</span>
+                  </div>
+                  <div class="w-full bg-slate-900 rounded-full h-2">
+                    <div id="barProjects" class="bg-indigo-500 h-2 rounded-full transition-all duration-1000" style="width: 0%"></div>
+                  </div>
+                </div>
+                <div class="flex flex-col gap-2">
+                  <div class="flex justify-between text-xs font-medium">
+                    <span class="text-slate-300">Education (10%)</span>
+                    <span id="scoreValEducation" class="font-bold text-white">0%</span>
+                  </div>
+                  <div class="w-full bg-slate-900 rounded-full h-2">
+                    <div id="barEducation" class="bg-indigo-500 h-2 rounded-full transition-all duration-1000" style="width: 0%"></div>
+                  </div>
+                </div>
+                <div class="flex flex-col gap-2">
+                  <div class="flex justify-between text-xs font-medium">
+                    <span class="text-slate-300">Certifications (5%)</span>
+                    <span id="scoreValCertifications" class="font-bold text-white">0%</span>
+                  </div>
+                  <div class="w-full bg-slate-900 rounded-full h-2">
+                    <div id="barCertifications" class="bg-indigo-500 h-2 rounded-full transition-all duration-1000" style="width: 0%"></div>
+                  </div>
+                </div>
+                <div class="flex flex-col gap-2">
+                  <div class="flex justify-between text-xs font-medium">
+                    <span class="text-slate-300">Tools & Tech (5%)</span>
+                    <span id="scoreValTools" class="font-bold text-white">0%</span>
+                  </div>
+                  <div class="w-full bg-slate-900 rounded-full h-2">
+                    <div id="barTools" class="bg-indigo-500 h-2 rounded-full transition-all duration-1000" style="width: 0%"></div>
+                  </div>
+                </div>
+                <div class="flex flex-col gap-2">
+                  <div class="flex justify-between text-xs font-medium">
+                    <span class="text-slate-300">Keywords Matching (5%)</span>
+                    <span id="scoreValKeywords" class="font-bold text-white">0%</span>
+                  </div>
+                  <div class="w-full bg-slate-900 rounded-full h-2">
+                    <div id="barKeywords" class="bg-indigo-500 h-2 rounded-full transition-all duration-1000" style="width: 0%"></div>
+                  </div>
+                </div>
+                <div class="flex flex-col gap-2">
+                  <div class="flex justify-between text-xs font-medium">
+                    <span class="text-slate-300">Soft Skills (5%)</span>
+                    <span id="scoreValSoftSkills" class="font-bold text-white">0%</span>
+                  </div>
+                  <div class="w-full bg-slate-900 rounded-full h-2">
+                    <div id="barSoftSkills" class="bg-indigo-500 h-2 rounded-full transition-all duration-1000" style="width: 0%"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Resume Summary Details (Section C) -->
+            <div class="glass-card border border-slate-800/60 rounded-2xl p-6">
+              <h3 class="text-sm font-bold text-slate-200 mb-3 flex items-center gap-2">
+                <i data-lucide="user" class="w-4 h-4 text-indigo-400"></i> Extracted Candidate Professional Profile
+              </h3>
+              <p id="resumeSummary" class="text-sm text-slate-300 leading-relaxed font-light italic">
+                Summary details...
+              </p>
+            </div>
+
+            <!-- Interview Probability Estimates (Section P) -->
+            <div class="glass-card border border-slate-800/60 rounded-2xl p-6">
+              <h3 class="text-sm font-bold text-slate-200 mb-6 flex items-center gap-2">
+                <i data-lucide="door-open" class="w-4 h-4 text-indigo-400"></i> Recruiter Interview Probability Pipeline
+              </h3>
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="p-4 bg-slate-900/60 border border-slate-800/80 rounded-xl text-center flex flex-col justify-center">
+                  <span class="text-2xl font-extrabold text-white" id="probPhone">0%</span>
+                  <span class="text-[10px] text-slate-500 uppercase tracking-widest font-semibold mt-1">Phone Screen</span>
+                </div>
+                <div class="p-4 bg-slate-900/60 border border-slate-800/80 rounded-xl text-center flex flex-col justify-center">
+                  <span class="text-2xl font-extrabold text-white" id="probTechnical">0%</span>
+                  <span class="text-[10px] text-slate-500 uppercase tracking-widest font-semibold mt-1">Technical Round</span>
+                </div>
+                <div class="p-4 bg-slate-900/60 border border-slate-800/80 rounded-xl text-center flex flex-col justify-center">
+                  <span class="text-2xl font-extrabold text-white" id="probFinal">0%</span>
+                  <span class="text-[10px] text-slate-500 uppercase tracking-widest font-semibold mt-1">Final Round</span>
+                </div>
+                <div class="p-4 bg-slate-900/60 border border-slate-800/80 rounded-xl text-center flex flex-col justify-center">
+                  <span class="text-2xl font-extrabold text-white animate-pulse" id="probOffer">0%</span>
+                  <span class="text-[10px] text-slate-500 uppercase tracking-widest font-semibold mt-1">Job Offer Odds</span>
+                </div>
+              </div>
+              <p id="interviewAssumptions" class="text-xs text-slate-400 mt-4 leading-relaxed bg-slate-900/30 p-3 rounded-lg border border-slate-800/60">
+                <strong>Assumptions:</strong> Calculations assume standard market response ratios, screening metrics, and resume content verification.
+              </p>
+            </div>
+
+            <!-- Final Recruiter Feedback (Section V) -->
+            <div class="glass-card border border-slate-800/60 rounded-2xl p-6 border-l-4 border-l-indigo-500">
+              <h3 class="text-sm font-bold text-slate-200 mb-3 flex items-center gap-2">
+                <i data-lucide="message-square" class="w-4 h-4 text-indigo-400"></i> Final Recruiter Assessment Log
+              </h3>
+              <p id="finalRecruiterFeedback" class="text-sm text-slate-300 leading-relaxed italic">
+                Feedback...
+              </p>
+            </div>
+
+          </div>
+
+          <!-- TAB 2: SKILLS & HEATMAP -->
+          <div id="tab-skills" class="tab-panel hidden flex flex-col gap-6">
+            
+            <!-- Side-by-Side Skills Analysis (Section D & E - User Requirement) -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              
+              <!-- Strong Matching Skills (Section D) -->
+              <div class="glass-card border border-slate-800/60 rounded-2xl p-5 flex flex-col">
+                <h3 class="text-sm font-bold text-emerald-400 mb-4 flex items-center gap-2 border-b border-slate-800/80 pb-3">
+                  <i data-lucide="check-circle" class="w-4 h-4"></i> Strong Matching Skills (Sec D)
+                </h3>
+                <div class="flex-grow overflow-x-auto">
+                  <table class="w-full text-left text-xs border-collapse">
+                    <thead>
+                      <tr class="text-slate-500 font-bold border-b border-slate-800/40">
+                        <th class="pb-2">Skill / Area</th>
+                        <th class="pb-2">Evidence from Resume</th>
+                        <th class="pb-2 text-right">Match</th>
+                      </tr>
+                    </thead>
+                    <tbody id="matchingSkillsTable" class="divide-y divide-slate-800/40 text-slate-300">
+                      <!-- Rendered programmatically -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Missing Skills (Section E) -->
+              <div class="glass-card border border-slate-800/60 rounded-2xl p-5 flex flex-col">
+                <h3 class="text-sm font-bold text-amber-500 mb-4 flex items-center gap-2 border-b border-slate-800/80 pb-3">
+                  <i data-lucide="alert-circle" class="w-4 h-4"></i> Missing Gaps & Requirements (Sec E)
+                </h3>
+                <div class="flex flex-col gap-4 overflow-y-auto max-h-[350px]">
+                  
+                  <!-- Critical Missing -->
+                  <div>
+                    <h4 class="text-[10px] font-bold text-rose-500 uppercase tracking-wider mb-2">Critical Blockers (Must-Have)</h4>
+                    <div id="missingSkillsCritical" class="flex flex-col gap-2 text-xs">
+                      <!-- Programmatic elements -->
+                    </div>
+                  </div>
+
+                  <!-- Important Missing -->
+                  <div>
+                    <h4 class="text-[10px] font-bold text-amber-500 uppercase tracking-wider mb-2">Important Missing (Preferred)</h4>
+                    <div id="missingSkillsImportant" class="flex flex-col gap-2 text-xs">
+                      <!-- Programmatic elements -->
+                    </div>
+                  </div>
+
+                  <!-- Nice to Have -->
+                  <div>
+                    <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Nice-To-Have Skills</h4>
+                    <div id="missingSkillsNice" class="flex flex-wrap gap-2 text-xs">
+                      <!-- Programmatic elements -->
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Heatmap Grid (Section K) -->
+            <div class="glass-card border border-slate-800/60 rounded-2xl p-6">
+              <h3 class="text-sm font-bold text-slate-200 mb-4 flex items-center gap-2">
+                <i data-lucide="grid" class="w-4 h-4 text-indigo-400"></i> Technical Domain Competency Heatmap (Sec K)
+              </h3>
+              <p class="text-xs text-slate-400 mb-6">Heatmap rating of developer domains, reflecting candidate familiarity calculated by semantic extraction.</p>
+              
+              <div class="grid grid-cols-2 sm:grid-cols-5 gap-4" id="heatmapContainer">
+                <!-- Heatmap blocks rendered dynamically -->
+              </div>
+            </div>
+
+            <!-- Soft Skill Analysis (Section L) -->
+            <div class="glass-card border border-slate-800/60 rounded-2xl p-6">
+              <h3 class="text-sm font-bold text-slate-200 mb-6 flex items-center gap-2">
+                <i data-lucide="users" class="w-4 h-4 text-indigo-400"></i> Soft Skills & Recruiter Trust Factors (Sec L)
+              </h3>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="softSkillsContainer">
+                <!-- Progress rows for soft skills -->
+              </div>
+            </div>
+
+          </div>
+
+          <!-- TAB 3: WORK & PROJECTS -->
+          <div id="tab-experience" class="tab-panel hidden flex flex-col gap-6">
+            
+            <!-- Experience Analysis (Section G) -->
+            <div class="glass-card border border-slate-800/60 rounded-2xl p-6">
+              <div class="flex items-center justify-between border-b border-slate-800/80 pb-4 mb-6">
+                <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+                  <i data-lucide="briefcase" class="w-4 h-4 text-indigo-400"></i> Career History & Years Analysis (Sec G)
+                </h3>
+                <div class="flex gap-4 text-xs font-semibold">
+                  <span class="text-slate-400">Required: <strong class="text-white" id="expReq">-</strong> yrs</span>
+                  <span class="text-slate-400">Available: <strong class="text-white animate-pulse" id="expAvail">-</strong> yrs</span>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div class="p-4 bg-slate-900/60 border border-slate-800 rounded-xl">
+                  <h4 class="text-xs font-bold text-indigo-400 uppercase tracking-widest">Relevant Experience</h4>
+                  <p id="expRelevant" class="text-xs text-slate-300 mt-2 leading-relaxed">Not Mentioned</p>
+                </div>
+                <div class="p-4 bg-slate-900/60 border border-slate-800 rounded-xl">
+                  <h4 class="text-xs font-bold text-indigo-400 uppercase tracking-widest">Transferable Skills</h4>
+                  <p id="expTransferable" class="text-xs text-slate-300 mt-2 leading-relaxed">Not Mentioned</p>
+                </div>
+                <div class="p-4 bg-slate-900/60 border border-slate-800 rounded-xl">
+                  <h4 class="text-xs font-bold text-rose-400 uppercase tracking-widest">Missing Work Competence</h4>
+                  <p id="expMissing" class="text-xs text-slate-300 mt-2 leading-relaxed">Not Mentioned</p>
+                </div>
+              </div>
+
+              <div class="p-4 bg-indigo-500/5 border border-indigo-500/10 rounded-xl text-xs flex justify-between items-center gap-4">
+                <div>
+                  <span class="font-semibold text-indigo-300">Target Industry Alignment:</span>
+                  <span id="expIndustryFit" class="text-slate-200 ml-2">Not Mentioned</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Project Evaluation List (Section H) -->
+            <div class="glass-card border border-slate-800/60 rounded-2xl p-6">
+              <h3 class="text-sm font-bold text-slate-200 mb-6 flex items-center gap-2">
+                <i data-lucide="git-branch" class="w-4 h-4 text-indigo-400"></i> Project Feasibility & Value Ratings (Sec H)
+              </h3>
+              <div class="flex flex-col gap-6" id="projectsContainer">
+                <!-- Evaluated projects rendered programmatically -->
+              </div>
+            </div>
+
+            <!-- Education Analysis (Section I) -->
+            <div class="glass-card border border-slate-800/60 rounded-2xl p-6">
+              <h3 class="text-sm font-bold text-slate-200 mb-6 flex items-center gap-2">
+                <i data-lucide="graduation-cap" class="w-4 h-4 text-indigo-400"></i> Academic Credential Verification (Sec I)
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs text-slate-300">
+                <div class="flex flex-col gap-3">
+                  <div class="flex justify-between border-b border-slate-850 pb-2">
+                    <span class="text-slate-500">Degree Alignment:</span>
+                    <span id="eduDegree" class="font-medium text-slate-200 text-right">Not Mentioned</span>
+                  </div>
+                  <div class="flex justify-between border-b border-slate-850 pb-2">
+                    <span class="text-slate-500">Academic Score (GPA):</span>
+                    <span id="eduGpa" class="font-medium text-slate-200 text-right">Not Mentioned</span>
+                  </div>
+                </div>
+                <div class="flex flex-col gap-3">
+                  <div class="flex justify-between border-b border-slate-850 pb-2">
+                    <span class="text-slate-500">Core Course Match:</span>
+                    <span id="eduCourse" class="font-medium text-slate-200 text-right">Not Mentioned</span>
+                  </div>
+                  <div class="flex justify-between border-b border-slate-850 pb-2">
+                    <span class="text-slate-500">Master's Preference:</span>
+                    <span id="eduMasters" class="font-medium text-slate-200 text-right">Not Mentioned</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Certification Analysis (Section J) -->
+            <div class="glass-card border border-slate-800/60 rounded-2xl p-6">
+              <h3 class="text-sm font-bold text-slate-200 mb-6 flex items-center gap-2">
+                <i data-lucide="badge-check" class="w-4 h-4 text-indigo-400"></i> Certification Analysis & Credential Rankings (Sec J)
+              </h3>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Left: Available Certifications -->
+                <div class="p-4 bg-slate-900/60 border border-slate-800 rounded-xl">
+                  <h4 class="text-xs font-bold text-emerald-400 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                    <i data-lucide="award" class="w-4 h-4"></i> Extracted / Validated Certifications
+                  </h4>
+                  <ul id="certValid" class="text-xs text-slate-300 flex flex-col gap-2.5 list-none">
+                    <!-- Dynamic details -->
+                  </ul>
+                </div>
+
+                <!-- Right: Missing/Recommended -->
+                <div class="p-4 bg-slate-900/60 border border-slate-800 rounded-xl">
+                  <h4 class="text-xs font-bold text-amber-500 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                    <i data-lucide="plus-circle" class="w-4 h-4"></i> Missing & Recommended Path
+                  </h4>
+                  <ul id="certRecs" class="text-xs text-slate-300 flex flex-col gap-2.5 list-none">
+                    <!-- Dynamic details -->
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- TAB 4: ATS OPTIMIZATION & IMPROVEMENTS -->
+          <div id="tab-optimization" class="tab-panel hidden flex flex-col gap-6">
+            
+            <!-- Strengths and Weaknesses Card (Section M & N - User Request) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Strengths (Sec M) -->
+              <div class="glass-card border border-slate-800/60 rounded-2xl p-5 border-l-4 border-l-emerald-500">
+                <h3 class="text-sm font-bold text-emerald-400 mb-4 flex items-center gap-2">
+                  <i data-lucide="thumbs-up" class="w-4 h-4"></i> Candidate Core Strengths (Sec M)
+                </h3>
+                <ul id="strengthsList" class="text-xs text-slate-300 flex flex-col gap-3 list-disc pl-4 leading-relaxed">
+                  <!-- Appended -->
+                </ul>
+              </div>
+
+              <!-- Weaknesses (Sec N) -->
+              <div class="glass-card border border-slate-800/60 rounded-2xl p-5 border-l-4 border-l-rose-500">
+                <h3 class="text-sm font-bold text-rose-400 mb-4 flex items-center gap-2">
+                  <i data-lucide="thumbs-down" class="w-4 h-4"></i> Hiring Risk Factors & Weaknesses (Sec N)
+                </h3>
+                <ul id="weaknessesList" class="text-xs text-slate-300 flex flex-col gap-3 list-disc pl-4 leading-relaxed">
+                  <!-- Appended -->
+                </ul>
+              </div>
+            </div>
+
+            <!-- Keyword & Density Analysis (Section F) -->
+            <div class="glass-card border border-slate-800/60 rounded-2xl p-6">
+              <h3 class="text-sm font-bold text-slate-200 mb-6 flex items-center gap-2">
+                <i data-lucide="key-round" class="w-4 h-4 text-indigo-400"></i> ATS Keyword Optimization Details (Sec F)
+              </h3>
+              
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <!-- Density gauge -->
+                <div class="p-4 bg-slate-900/60 border border-slate-800 rounded-xl text-center flex flex-col justify-center">
+                  <span class="text-3xl font-extrabold text-white" id="kwDensity">0.0%</span>
+                  <span class="text-[10px] text-slate-500 uppercase tracking-widest font-semibold mt-1">Keyword Density</span>
+                </div>
+                <!-- Search Visibility -->
+                <div class="p-4 bg-slate-900/60 border border-slate-800 rounded-xl text-center flex flex-col justify-center">
+                  <span class="text-3xl font-extrabold text-white" id="kwVisibility">Medium</span>
+                  <span class="text-[10px] text-slate-500 uppercase tracking-widest font-semibold mt-1">Recruiter Visibility</span>
+                </div>
+                <!-- ATS Optimization Score -->
+                <div class="p-4 bg-slate-900/60 border border-slate-800 rounded-xl text-center flex flex-col justify-center">
+                  <span class="text-3xl font-extrabold text-white" id="kwOptScore">0%</span>
+                  <span class="text-[10px] text-slate-500 uppercase tracking-widest font-semibold mt-1">Optimization Score</span>
+                </div>
+              </div>
+
+              <!-- Keyword pills -->
+              <div class="flex flex-col gap-4">
+                <div>
+                  <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Matched Target Keywords</h4>
+                  <div id="kwMatchedPills" class="flex flex-wrap gap-2">
+                    <!-- pills -->
+                  </div>
+                </div>
+                <div>
+                  <h4 class="text-[10px] font-bold text-amber-500 uppercase tracking-wider mb-2">Missing Critical Keywords</h4>
+                  <div id="kwMissingPills" class="flex flex-wrap gap-2">
+                    <!-- pills -->
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- STAR Bullet Improvement Rewriter (Section R & S) -->
+            <div class="glass-card border border-slate-800/60 rounded-2xl p-6">
+              <h3 class="text-sm font-bold text-slate-200 mb-2 flex items-center gap-2">
+                <i data-lucide="check-square" class="w-4 h-4 text-indigo-400"></i> Interactive Resume Bullet improver (STAR Method)
+              </h3>
+              <p class="text-xs text-slate-400 mb-6">Evaluate and replace weak resume points with quantified, impact-oriented statements.</p>
+              
+              <!-- Bullet rewrite cards -->
+              <div class="flex flex-col gap-4" id="bulletImprovementsContainer">
+                <!-- Appended -->
+              </div>
+
+              <!-- Custom Bullet Tryout -->
+              <div class="border border-slate-800/80 bg-slate-900/40 rounded-xl p-4 mt-6">
+                <h4 class="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-3">Custom STAR Rewriter Tool</h4>
+                <div class="flex flex-col sm:flex-row gap-3">
+                  <input type="text" id="customBulletInput" placeholder="Enter a weak bullet, e.g. 'Created a website'..." class="flex-grow bg-slate-900 border border-slate-700/60 rounded-xl px-4 py-2.5 text-xs text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                  <button id="btnRewriteBullet" class="px-5 py-2.5 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-slate-950 shrink-0 transition">
+                    Convert to STAR
+                  </button>
+                </div>
+                <div id="customBulletResult" class="hidden mt-3 p-3 bg-indigo-500/5 border border-indigo-500/10 rounded-lg text-xs leading-relaxed text-slate-200">
+                  <!-- Result content -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Verbs Analysis (Section S) -->
+            <div class="glass-card border border-slate-800/60 rounded-2xl p-6">
+              <h3 class="text-sm font-bold text-slate-200 mb-3 flex items-center gap-2">
+                <i data-lucide="activity" class="w-4 h-4 text-indigo-400"></i> Recruiter-Preferred Action Verbs Analysis (Sec S)
+              </h3>
+              <p class="text-xs text-slate-400 mb-4">Incorporate these strong verbs to improve impact and readability scores.</p>
+              <div id="missingActionVerbsList" class="flex flex-wrap gap-2">
+                <!-- Action verbs pills -->
+              </div>
+            </div>
+
+            <!-- Suggested Job Roles (Section T) -->
+            <div class="glass-card border border-slate-800/60 rounded-2xl p-6">
+              <h3 class="text-sm font-bold text-slate-200 mb-6 flex items-center gap-2">
+                <i data-lucide="git-pull-request" class="w-4 h-4 text-indigo-400"></i> Alternative Role Index Recommendations (Sec T)
+              </h3>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="p-4 bg-slate-900/60 border border-slate-800 rounded-xl">
+                  <span class="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">Best-Fit Roles</span>
+                  <div class="text-xs font-medium text-slate-200 mt-2" id="roleBest">Role</div>
+                </div>
+                <div class="p-4 bg-slate-900/60 border border-slate-800 rounded-xl">
+                  <span class="text-[10px] font-bold text-slate-300 uppercase tracking-widest">Good-Fit Roles</span>
+                  <div class="text-xs font-medium text-slate-200 mt-2" id="roleGood">Role</div>
+                </div>
+                <div class="p-4 bg-slate-900/60 border border-slate-800 rounded-xl">
+                  <span class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest">Stretch Ambition Roles</span>
+                  <div class="text-xs font-medium text-slate-200 mt-2" id="roleStretch">Role</div>
+                </div>
+                <div class="p-4 bg-slate-900/60 border border-slate-800 rounded-xl">
+                  <span class="text-[10px] font-bold text-rose-400 uppercase tracking-widest">Not Recommended Positions</span>
+                  <div class="text-xs font-medium text-slate-200 mt-2" id="roleNotRec">Role</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Learning Roadmap Timeline (Section U - User Request) -->
+            <div class="glass-card border border-slate-800/60 rounded-2xl p-6">
+              <h3 class="text-sm font-bold text-slate-200 mb-6 flex items-center gap-2">
+                <i data-lucide="compass" class="w-4 h-4 text-indigo-400"></i> 180-Day Skills Acquisition Learning Roadmap (Sec U)
+              </h3>
+              
+              <!-- Timeline Layout -->
+              <div class="relative pl-8 border-l border-slate-800 flex flex-col gap-6" id="learningRoadmapTimeline">
+                <!-- Timeline items rendered dynamically -->
+              </div>
+            </div>
+
+            <!-- General Resume Roadmap Action List (Section Q) -->
+            <div class="glass-card border border-slate-800/60 rounded-2xl p-6">
+              <h3 class="text-sm font-bold text-slate-200 mb-6 flex items-center gap-2">
+                <i data-lucide="signpost" class="w-4 h-4 text-indigo-400"></i> Strategic ATS Optimization Roadmaps (Sec Q)
+              </h3>
+              
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="improvementsRoadmap">
+                <!-- Priorities: High, Medium, Low -->
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- EDIT TEXT MODAL -->
+  <div id="editTextModal" class="hidden fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4">
+    <div class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm"></div>
+    
+    <div class="relative glass-card w-full max-w-4xl border border-slate-800/80 rounded-2xl shadow-2xl overflow-hidden z-10 flex flex-col max-h-[85vh]">
+      <div class="px-6 py-4 border-b border-slate-800/80 flex justify-between items-center bg-slate-900/60">
+        <h3 class="text-base font-bold text-white flex items-center gap-2"><i data-lucide="edit-3" class="w-5 h-5 text-indigo-400"></i> Edit Extracted File Text</h3>
+        <button id="btnCloseModal" class="p-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      
+      <div class="p-6 overflow-y-auto flex-grow grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="flex flex-col gap-2">
+          <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Extracted Resume Text</label>
+          <textarea id="modalResumeText" class="w-full flex-grow min-h-[350px] bg-slate-900 border border-slate-800 rounded-xl p-4 text-xs font-mono text-slate-300 focus:outline-none focus:ring-1 focus:ring-indigo-500 resize-none"></textarea>
+        </div>
+        <div class="flex flex-col gap-2">
+          <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Job Description Text</label>
+          <textarea id="modalJdText" class="w-full flex-grow min-h-[350px] bg-slate-900 border border-slate-800 rounded-xl p-4 text-xs font-mono text-slate-300 focus:outline-none focus:ring-1 focus:ring-indigo-500 resize-none"></textarea>
+        </div>
+      </div>
+      
+      <div class="px-6 py-4 border-t border-slate-800/80 bg-slate-900/40 flex justify-end gap-3">
+        <button id="btnCancelModal" class="px-4 py-2 rounded-xl text-xs font-semibold border border-slate-700 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white transition">Cancel</button>
+        <button id="btnSaveModal" class="px-5 py-2 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-slate-950 transition">Re-Run Analysis</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- File Readers CDNs -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+  <script>
+    // Set PDF.js worker path
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+
+  <!-- App Scripts -->
+  <script src="mockData.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
